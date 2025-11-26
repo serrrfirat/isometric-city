@@ -1181,12 +1181,14 @@ function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile }: {
     let rightColor = '#5a8f4f';
     let strokeColor = '#2d4a26';
     
-    // Check if this is a building (not grass, empty, water, road, or tree)
-    const isBuilding = tile.building.type !== 'grass' && 
-                       tile.building.type !== 'empty' && 
-                       tile.building.type !== 'water' && 
-                       tile.building.type !== 'road' && 
-                       tile.building.type !== 'tree';
+    const isPark = tile.building.type === 'park';
+    // Check if this is a building (not grass, empty, water, road, tree, or park)
+    const isBuilding = !isPark &&
+      tile.building.type !== 'grass' &&
+      tile.building.type !== 'empty' &&
+      tile.building.type !== 'water' &&
+      tile.building.type !== 'road' &&
+      tile.building.type !== 'tree';
     
     if (tile.building.type === 'water') {
       topColor = '#2563eb';
@@ -1198,6 +1200,11 @@ function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile }: {
       leftColor = '#3a3a3a';
       rightColor = '#5a5a5a';
       strokeColor = '#333';
+    } else if (isPark) {
+      topColor = '#4a7c3f';
+      leftColor = '#3d6634';
+      rightColor = '#5a8f4f';
+      strokeColor = '#2d4a26';
     } else if (isBuilding) {
       // White tiles for all buildings
       topColor = '#ffffff';
