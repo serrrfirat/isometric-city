@@ -4,6 +4,9 @@
 import React, { createContext, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
 import { serializeAndCompressAsync } from '@/lib/saveWorkerManager';
+import { buildAgentObservation } from '@/lib/agent/observation';
+import { applyAgentActionRequest } from '@/lib/agent/execute';
+import type { AgentNextActionsResponse } from '@/lib/agent/types';
 import { simulateTick } from '@/lib/simulation';
 import {
   Budget,
@@ -836,6 +839,97 @@ export function GameProvider({ children, startFresh = false }: { children: React
       }
     };
   }, [state.speed]);
+
+  const agentToken = process.env.NEXT_PUBLIC_AGENT_BRIDGE_TOKEN;
+  const agentEnabled = Boolean(agentToken);
+  const agentExecutingRef = useRef(false);
+  const agentLastPublishSignatureRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!agentEnabled || !isStateReady) return;
+
+    const token = agentToken;
+    if (!token) return;
+
+    let isCancelled = false;
+
+    const publish = async () => {
+      if (isCancelled) return;
+
+      try {
+        const stateForPublish = latestStateRef.current;
+        const signature = `${stateForPublish.tick}:${stateForPublish.stats.money}:${stateForPublish.stats.population}:${stateForPublish.taxRate}:${stateForPublish.speed}`;
+        if (signature === agentLastPublishSignatureRef.current) return;
+        agentLastPublishSignatureRef.current = signature;
+
+        const observation = buildAgentObservation(stateForPublish);
+
+        await fetch('/api/agent/observe', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-agent-token': token,
+          },
+          body: JSON.stringify({ observation }),
+        });
+      } catch {
+        return;
+      }
+    };
+
+    void publish();
+    const timer = setInterval(() => {
+      void publish();
+    }, 1000);
+
+    return () => {
+      isCancelled = true;
+      clearInterval(timer);
+    };
+  }, [agentEnabled, agentToken, isStateReady]);
+
+  useEffect(() => {
+    if (!agentEnabled || !isStateReady) return;
+
+    const token = agentToken;
+    if (!token) return;
+
+    let isCancelled = false;
+
+    const poll = async () => {
+      if (isCancelled) return;
+      if (agentExecutingRef.current) return;
+      agentExecutingRef.current = true;
+
+      try {
+        const res = await fetch('/api/agent/next', {
+          method: 'GET',
+          headers: {
+            'x-agent-token': token,
+          },
+        });
+
+        if (!res.ok) return;
+
+        const data = (await res.json()) as AgentNextActionsResponse;
+        const actions = data.actions;
+        if (!data.ok || !actions) return;
+
+        setState((prev) => applyAgentActionRequest(prev, actions));
+      } finally {
+        agentExecutingRef.current = false;
+      }
+    };
+
+    const timer = setInterval(() => {
+      void poll();
+    }, 500);
+
+    return () => {
+      isCancelled = true;
+      clearInterval(timer);
+    };
+  }, [agentEnabled, agentToken, isStateReady]);
 
   const setTool = useCallback((tool: Tool) => {
     setState((prev) => ({ ...prev, selectedTool: tool, activePanel: 'none' }));

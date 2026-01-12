@@ -34,6 +34,7 @@ import {
 import { MiniMap } from '@/components/game/MiniMap';
 import { TopBar, StatsPanel } from '@/components/game/TopBar';
 import { CanvasIsometricGrid } from '@/components/game/CanvasIsometricGrid';
+import { MayorChatPanel } from '@/components/game/MayorChatPanel';
 
 // Cargo type names for notifications
 const CARGO_TYPE_NAMES = [msg('containers'), msg('bulk materials'), msg('oil')];
@@ -341,6 +342,8 @@ export default function Game({ onExit }: { onExit?: () => void }) {
     );
   }
 
+  const [showMayorChat, setShowMayorChat] = useState(true);
+
   // Desktop layout
   return (
     <TooltipProvider>
@@ -361,7 +364,7 @@ export default function Game({ onExit }: { onExit?: () => void }) {
               onBargeDelivery={handleBargeDelivery}
             />
             <OverlayModeToggle overlayMode={overlayMode} setOverlayMode={setOverlayMode} />
-            <MiniMap onNavigate={(x, y) => setNavigationTarget({ x, y })} viewport={viewport} />
+            <MiniMap onNavigate={(x, y) => setNavigationTarget({ x, y })} viewport={viewport} rightOffset={showMayorChat ? 340 : 32} />
             
             {/* Multiplayer Players Indicator */}
             {isMultiplayer && (
@@ -416,6 +419,16 @@ export default function Game({ onExit }: { onExit?: () => void }) {
           onContinue={onTipContinue}
           onSkipAll={onTipSkipAll}
         />
+        
+        {showMayorChat && <MayorChatPanel />}
+        
+        <button
+          onClick={() => setShowMayorChat((v) => !v)}
+          className="fixed bottom-4 right-4 z-50 bg-slate-800 hover:bg-slate-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg border border-slate-600 transition-colors"
+          title={showMayorChat ? 'Hide Mayor Chat' : 'Show Mayor Chat'}
+        >
+          🏛️
+        </button>
       </div>
     </TooltipProvider>
   );

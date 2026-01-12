@@ -30,13 +30,14 @@ interface MiniMapProps {
     zoom: number; 
     canvasSize: { width: number; height: number } 
   } | null;
+  rightOffset?: number;
 }
 
 // Canvas-based Minimap - Memoized with throttled grid rendering
 // Translatable label
 const MINIMAP_LABEL = msg('Minimap');
 
-export const MiniMap = React.memo(function MiniMap({ onNavigate, viewport }: MiniMapProps) {
+export const MiniMap = React.memo(function MiniMap({ onNavigate, viewport, rightOffset = 32 }: MiniMapProps) {
   const { state } = useGame();
   const { grid, gridSize, tick } = state;
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -192,7 +193,7 @@ export const MiniMap = React.memo(function MiniMap({ onNavigate, viewport }: Min
   }, [isDragging]);
   
   return (
-    <Card className="fixed bottom-6 right-8 p-3 shadow-lg bg-card/90 border-border/70 z-50">
+    <Card className="fixed bottom-6 p-3 shadow-lg bg-card/90 border-border/70 z-50" style={{ right: rightOffset }}>
       <div className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-semibold mb-2">
         {m(MINIMAP_LABEL)}
       </div>
