@@ -145,7 +145,7 @@ export function CoopModal({
       setWaitingForState(false);
       // Use the room code from context, joinCode, or pendingRoomCode
       const code = roomCode || joinCode.toUpperCase() || pendingRoomCode?.toUpperCase();
-      onStartGame(false, initialState, code || undefined);
+      onStartGame(false, initialState as GameState, code || undefined);
       onOpenChange(false);
     }
   }, [waitingForState, initialState, onStartGame, onOpenChange, roomCode, joinCode, pendingRoomCode]);

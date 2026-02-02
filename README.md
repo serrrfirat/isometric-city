@@ -1,10 +1,21 @@
-# IsoCity
+# IsoCity & IsoCoaster
 
-Try for free at [iso-city.com](https://iso-city.com)!
+Open-source isometric simulation games built with **Next.js**, **TypeScript**, and **HTML5 Canvas**.
 
-IsoCity is a open-source isometric city-building simulation game built with **Next.js**, **TypeScript**, and **Tailwind CSS**. It leverages the HTML5 Canvas API for high-performance rendering of isometric graphics, featuring complex systems for economic simulation, trains, planes, seaplanes, helicopters, cars, pedestrians, and more.
-
-![IsoCity Banner](public/readme-image.png)
+<table>
+<tr>
+<td width="50%" align="center"><strong>IsoCity</strong></td>
+<td width="50%" align="center"><strong>IsoCoaster</strong></td>
+</tr>
+<tr>
+<td><img src="public/readme-image.png" width="100%"></td>
+<td><img src="public/readme-coaster.png" width="100%"></td>
+</tr>
+<tr>
+<td align="center">City builder with trains, planes, cars, and pedestrians<br><a href="https://iso-city.com">iso-city.com</a></td>
+<td align="center">Build theme parks with roller coasters, rides, and guests<br><a href="https://iso-coaster.com">iso-coaster.com</a></td>
+</tr>
+</table>
 
 Made with [Cursor](https://cursor.com)
 
